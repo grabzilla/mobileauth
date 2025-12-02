@@ -1,7 +1,7 @@
 <?php
 
 $host = 'localhost';
-$user = 'host';
+$user = 'root';
 $password = '';
 $database = 'flutter_db';
 

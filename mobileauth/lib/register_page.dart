@@ -10,7 +10,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPage extends State<RegisterPage> {
-  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -29,16 +29,37 @@ class _RegisterPage extends State<RegisterPage> {
     var response = await http.post(
       url,
       body: {
-        "name": _fullNameController.text,
+        "name": _nameController.text,
         "password": _passwordController.text,
       },
     );
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(data["message"])));
+      if (data["message"].toString().contains("Successfully")) {
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Registration Successful"),
+              content: const Text("You have registered successfully."),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        Navigator.of(context).pop();
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(data["message"])));
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -93,7 +114,7 @@ class _RegisterPage extends State<RegisterPage> {
                           children: <Widget>[
                             _buildInputField(
                               hint: "Full Name",
-                              controller: _fullNameController,
+                              controller: _nameController,
                             ),
                             _buildInputField(
                               hint: "Password",

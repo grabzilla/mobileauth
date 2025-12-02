@@ -1,7 +1,10 @@
+// login_page.dart
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobileauth/register_page.dart';
+import 'package:mobileauth/userlist_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -37,9 +40,21 @@ class _LoginPage extends State<LoginPage> {
     );
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login attempt: ${data["message"]}")),
-      );
+
+      if (data["message"].toString().contains("Successfully")) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login Successful! Navigating to Dashboard.")),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => UserListPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login attempt failed: ${data["message"]}")),
+        );
+      }
       _fetchUsers();
     } else {
       print("Failed to insert user");
@@ -187,6 +202,7 @@ class _LoginPage extends State<LoginPage> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 15),
                     ],
                   ),
                 ),

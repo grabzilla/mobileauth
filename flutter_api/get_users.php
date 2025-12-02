@@ -1,7 +1,7 @@
 <?php
 include 'db_config.php';
 
-$sql = "SELECT * FROM users";
+$sql = "SELECT id, username AS name, password FROM users";
 $result = $conn->query($sql);
 
 $users = [];
