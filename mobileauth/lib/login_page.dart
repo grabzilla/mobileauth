@@ -1,5 +1,4 @@
-// login_page.dart
-
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +6,8 @@ import 'package:mobileauth/register_page.dart';
 import 'package:mobileauth/userlist_page.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   State<LoginPage> createState() => _LoginPage();
 }
@@ -19,45 +20,68 @@ class _LoginPage extends State<LoginPage> {
 
   Future<void> _fetchUsers() async {
     var url = Uri.parse("$baseUrl/get_users.php");
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      setState(() {
-        users = json.decode(response.body);
-      });
-    } else {
-      print("Failed to load users");
+    try {
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        setState(() {
+          users = json.decode(response.body);
+        });
+      } else {
+        print("Failed to load users (status ${response.statusCode})");
+      }
+    } on TimeoutException catch (_) {
+      print('get_users request timed out');
+    } catch (e) {
+      print('get_users failed: $e');
     }
   }
 
   Future<void> _insertUser() async {
     var url = Uri.parse("$baseUrl/insert_user.php");
-    var response = await http.post(
-      url,
-      body: {
-        "name": _nameController.text,
-        "password": _passwordController.text,
-      },
-    );
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
+    try {
+      var response = await http
+          .post(
+            url,
+            body: {
+              "name": _nameController.text,
+              "password": _passwordController.text,
+            },
+          )
+          .timeout(const Duration(seconds: 10));
 
-      if (data["message"].toString().contains("Successfully")) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login Successful! Navigating to Dashboard.")),
-        );
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => UserListPage()),
-        );
+        if (data["message"].toString().contains("Successfully")) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Login Successful! Navigating to Dashboard."),
+            ),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => UserListPage()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Login attempt failed: ${data["message"]}")),
+          );
+        }
+        _fetchUsers();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login attempt failed: ${data["message"]}")),
-        );
+        print("Failed to insert user (status ${response.statusCode})");
       }
-      _fetchUsers();
-    } else {
-      print("Failed to insert user");
+    } on TimeoutException catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Request timed out. Check server/network."),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Network error: $e")));
     }
   }
 

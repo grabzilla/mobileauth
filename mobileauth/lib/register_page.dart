@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -26,48 +27,62 @@ class _RegisterPage extends State<RegisterPage> {
     }
 
     var url = Uri.parse("$baseUrl/insert_user.php");
-    var response = await http.post(
-      url,
-      body: {
-        "name": _nameController.text,
-        "password": _passwordController.text,
-      },
-    );
+    try {
+      var response = await http
+          .post(
+            url,
+            body: {
+              "name": _nameController.text,
+              "password": _passwordController.text,
+            },
+          )
+          .timeout(const Duration(seconds: 10));
 
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      if (data["message"].toString().contains("Successfully")) {
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Registration Successful"),
-              content: const Text("You have registered successfully."),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-        Navigator.of(context).pop();
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        if (data["message"].toString().contains("Successfully")) {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("Registration Successful"),
+                content: const Text("You have registered successfully."),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text("OK"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(data["message"])));
+        }
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(data["message"])));
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Failed to register user. Status: ${response.statusCode}",
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Failed to register user. Status: ${response.statusCode}",
+            ),
           ),
+        );
+      }
+    } on TimeoutException catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Request timed out. Check server/network."),
         ),
       );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Network error: $e")));
     }
   }
 
