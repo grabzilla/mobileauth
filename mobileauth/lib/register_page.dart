@@ -128,7 +128,7 @@ class _RegisterPage extends State<RegisterPage> {
                         child: Column(
                           children: <Widget>[
                             _buildInputField(
-                              hint: "Full Name",
+                              hint: "Username",
                               controller: _nameController,
                             ),
                             _buildInputField(

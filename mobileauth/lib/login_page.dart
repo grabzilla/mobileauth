@@ -36,8 +36,8 @@ class _LoginPage extends State<LoginPage> {
     }
   }
 
-  Future<void> _insertUser() async {
-    var url = Uri.parse("$baseUrl/insert_user.php");
+  Future<void> _loginUser() async {
+    var url = Uri.parse("$baseUrl/login_user.php");
     try {
       var response = await http
           .post(
@@ -52,10 +52,10 @@ class _LoginPage extends State<LoginPage> {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
 
-        if (data["message"].toString().contains("Successfully")) {
+        if (data["message"].toString().contains("Successful")) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Login Successful! Navigating to Dashboard."),
+              content: Text("Login Successful! Navigating to Dashbaord."),
             ),
           );
 
@@ -68,9 +68,18 @@ class _LoginPage extends State<LoginPage> {
             SnackBar(content: Text("Login attempt failed: ${data["message"]}")),
           );
         }
-        _fetchUsers();
+      } else if (response.statusCode == 401) {
+        var data = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login attempt failed: ${data["message"]}")),
+        );
       } else {
-        print("Failed to insert user (status ${response.statusCode})");
+        print("Failed to login user (status ${response.statusCode})");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Server error: Status ${response.statusCode}"),
+          ),
+        );
       }
     } on TimeoutException catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -189,7 +198,7 @@ class _LoginPage extends State<LoginPage> {
                       ),
                       SizedBox(height: 40),
                       GestureDetector(
-                        onTap: _insertUser,
+                        onTap: _loginUser,
                         child: Container(
                           height: 50,
                           margin: EdgeInsets.symmetric(horizontal: 50),

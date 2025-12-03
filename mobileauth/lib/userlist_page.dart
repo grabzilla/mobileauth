@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobileauth/login_page.dart';
 
 class UserListPage extends StatefulWidget {
   const UserListPage({super.key});
@@ -56,6 +57,16 @@ class _UserListPageState extends State<UserListPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void _logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Logged out successfully.")));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,6 +81,11 @@ class _UserListPageState extends State<UserListPage> {
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: _fetchUsers,
             tooltip: 'Refresh List',
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: _logout,
+            tooltip: 'Logout',
           ),
         ],
       ),
