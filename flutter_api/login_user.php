@@ -20,23 +20,36 @@ set_error_handler(function($errno, $errstr) {
 
 if (isset($_POST['name']) && isset($_POST['password'])) {
     $username = $_POST['name']; 
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    $password_input = $_POST['password'];
+
+    $stmt = $conn->prepare("SELECT password FROM users WHERE username = ?");
     
     if ($stmt === false) {
-        http_response_code(400);
+        http_response_code(500);
         echo json_encode(['message' => 'Error preparing statement: ' . $conn->error]);
         exit();
     }
-    $stmt->bind_param("ss", $username, $password);
 
-    if ($stmt->execute()) {
-        http_response_code(200);
-        echo json_encode(['message' => 'User created Successfully']);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 1) {
+        $row = $result->fetch_assoc();
+        $hashed_password = $row['password'];
+
+        if (password_verify($password_input, $hashed_password)) {
+            http_response_code(200);
+            echo json_encode(['message' => 'Login Successful']);
+        } else {
+            http_response_code(401);
+            echo json_encode(['message'=> 'Invalid credentials']);
+        }
     } else {
-        http_response_code(400);
-        echo json_encode(['message'=> 'SQL Error: ' . $stmt->error]);
+        http_response_code(401);
+        echo json_encode(['message'=> 'Invalid credentials']);
     }
+    
     $stmt->close();
 } else {
     http_response_code(400);
