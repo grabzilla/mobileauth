@@ -16,7 +16,7 @@ class _LoginPage extends State<LoginPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   List users = [];
-  final String baseUrl = "http://localhost/flutter_api";
+  final String baseUrl = "http://192.168.1.157/flutter_api";
 
   Future<void> _fetchUsers() async {
     var url = Uri.parse("$baseUrl/get_users.php");

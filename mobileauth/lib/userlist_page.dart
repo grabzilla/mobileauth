@@ -13,7 +13,7 @@ class UserListPage extends StatefulWidget {
 class _UserListPageState extends State<UserListPage> {
   List _users = [];
   bool _isLoading = true;
-  final String baseUrl = "http://localhost/flutter_api";
+  final String baseUrl = "http://192.168.1.157/flutter_api";
 
   @override
   void initState() {
@@ -72,7 +72,7 @@ class _UserListPageState extends State<UserListPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Registered Users",
+          "DASHBOARD: Users",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.green,

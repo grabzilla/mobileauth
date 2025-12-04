@@ -16,7 +16,7 @@ class _RegisterPage extends State<RegisterPage> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  final String baseUrl = "http://localhost/flutter_api";
+  final String baseUrl = "http://192.168.1.157/flutter_api";
 
   Future<void> _registerUser() async {
     if (_passwordController.text != _confirmPasswordController.text) {
@@ -86,18 +86,65 @@ class _RegisterPage extends State<RegisterPage> {
     }
   }
 
+  Widget _buildInputField({
+    required String hint,
+    required TextEditingController controller,
+    bool isObscure = false,
+    bool showBottomBorder = true,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: showBottomBorder
+            ? Border(bottom: BorderSide(color: Colors.blueGrey[100]!))
+            : null,
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: isObscure,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.blueGrey),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Register", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.green,
-        elevation: 0,
-      ),
       body: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [Colors.green, Colors.greenAccent]),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            SizedBox(height: 80),
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "Register",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "Create your account",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -111,7 +158,7 @@ class _RegisterPage extends State<RegisterPage> {
                   padding: EdgeInsets.all(30),
                   child: Column(
                     children: <Widget>[
-                      SizedBox(height: 30),
+                      SizedBox(height: 60),
                       Container(
                         padding: EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -167,37 +214,25 @@ class _RegisterPage extends State<RegisterPage> {
                         ),
                       ),
                       SizedBox(height: 30),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          "Already have an account? Login Here",
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 15),
                     ],
                   ),
                 ),
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputField({
-    required String hint,
-    required TextEditingController controller,
-    bool isObscure = false,
-    bool showBottomBorder = true,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        border: showBottomBorder
-            ? Border(bottom: BorderSide(color: Colors.blueGrey[100]!))
-            : null,
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: isObscure,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.blueGrey),
-          border: InputBorder.none,
         ),
       ),
     );
